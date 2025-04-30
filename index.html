@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-br" x-data="hashConverter()">
+<head>
+  <meta charset="UTF-8" />
+  <title>Conversor de Hash Rate</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-br from-gray-100 to-gray-200 font-sans text-gray-800 min-h-screen flex flex-col items-center p-6 transition-colors duration-300 dark:bg-gray-900 dark:text-white">
+  <!-- Banner Superior Fixo -->
+  <div class="fixed top-0 left-0 w-full bg-yellow-500 text-center py-2 z-50 shadow-md">
+    <p class="text-sm font-medium">Este é um banner superior fixo (Substitua com seu código AdSense)</p>
+  </div>
+
+  <!-- Container Principal -->
+  <div class="flex flex-col md:flex-row w-full max-w-6xl mx-auto mt-16 mb-8">
+    <!-- Barra de anúncio lateral esquerda -->
+    <div class="hidden md:block w-40 flex-shrink-0 mr-4">
+      <div style="width: 160px; height: 600px;" class="bg-gray-200 dark:bg-gray-700 rounded-lg p-3 sticky top-20">
+        <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Anúncio</p>
+        <!-- Código do Google AdSense (substitua conforme suas credenciais) -->
+        <ins class="adsbygoogle"
+             style="display:inline-block;width:160px;height:600px;"
+             data-ad-client="ca-pub-ID_DO_ADSENSE"
+             data-ad-slot="SLOT_DO_ADSENSE"></ins>
+        <script>
+          (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+      </div>
+    </div>
+
+    <!-- Conteúdo Principal -->
+    <div class="w-full md:w-auto flex-1 max-w-md mx-auto bg-white shadow-xl rounded-lg overflow-hidden dark:bg-gray-800 dark:border dark:border-gray-700 transition-colors duration-300">
+      <!-- Cabeçalho -->
+      <div class="bg-blue-600 text-white px-6 py-5 dark:bg-indigo-700">
+        <h1 class="text-2xl font-bold">🔄 Conversor de Hash Rate</h1>
+        <p class="text-sm opacity-90">KH/s, MH/s, GH/s, TH/s, PH/s, EH/s</p>
+      </div>
+      <!-- Campos -->
+      <div class="p-6 space-y-4 dark:bg-gray-800">
+        <template x-for="(unit, index) in units" :key="index">
+          <div class="flex items-center">
+            <label :for="'input-' + unit.key" class="w-24 block text-sm font-medium text-gray-700 dark:text-gray-300" x-text="unit.label"></label>
+            <input :id="'input-' + unit.key"
+                   type="number"
+                   step="any"
+                   x-model.number="values[unit.key]"
+                   @input="updateFrom(unit.key)"
+                   class="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none transition dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+          </div>
+        </template>
+        <!-- Botões -->
+        <div class="mt-6 flex gap-4">
+          <button @click="clearFields" type="button" class="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded transition">
+            Limpar
+          </button>
+          <button @click="saveToHistory" type="button" class="flex-1 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded transition">
+            Salvar no Histórico
+          </button>
+        </div>
+        <!-- Histórico -->
+        <div x-show="history.length > 0" class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div class="flex justify-between items-center">
+            <h2 class="font-semibold text-gray-700 dark:text-white mb-2">🕒 Histórico de Valores</h2>
+            <button @click="resetHistory" type="button" class="text-xs bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded transition">
+              Reset
+            </button>
+          </div>
+          <ul class="space-y-2 max-h-40 overflow-auto bg-gray-50 dark:bg-gray-700 p-3 rounded">
+            <template x-for="(entry, idx) in history" :key="idx">
+              <li class="text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 px-3 py-1 rounded shadow-sm">
+                <span x-text="entry.formattedTime"></span> — 
+                <span x-text="entry.text"></span>
+              </li>
+            </template>
+          </ul>
+        </div>
+      </div>
+      <!-- Rodapé -->
+      <div class="px-6 py-3 text-center text-xs text-gray-500 bg-gray-50 dark:bg-gray-700 dark:text-gray-400 transition-colors duration-300">
+        Digite em qualquer campo e veja as conversões automáticas nas outras unidades.
+      </div>
+    </div>
+
+    <!-- Barra de anúncio lateral direita -->
+    <div class="hidden md:block w-40 flex-shrink-0 ml-4">
+      <div style="width: 160px; height: 600px;" class="bg-gray-200 dark:bg-gray-700 rounded-lg p-3 sticky top-20">
+        <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Anúncio</p>
+        <!-- Código do Google AdSense -->
+        <ins class="adsbygoogle"
+             style="display:inline-block;width:160px;height:600px;"
+             data-ad-client="ca-pub-ID_DO_ADSENSE"
+             data-ad-slot="SLOT_DO_ADSENSE"></ins>
+        <script>
+          (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+      </div>
+    </div>
+  </div>
+
+  <!-- Banner Inferior Fixo -->
+  <div class="fixed bottom-0 left-0 w-full bg-yellow-500 text-center py-2 z-50 shadow-md">
+    <p class="text-sm font-medium">Este é um banner inferior fixo (Substitua com seu código AdSense)</p>
+  </div>
+
+  <script>
+    function hashConverter() {
+      return {
+        units: [
+          { key: 'kh', label: 'KH/s' },
+          { key: 'mh', label: 'MH/s' },
+          { key: 'gh', label: 'GH/s' },
+          { key: 'th', label: 'TH/s' },
+          { key: 'ph', label: 'PH/s' },
+          { key: 'eh', label: 'EH/s' }
+        ],
+        values: {
+          kh: '',
+          mh: '',
+          gh: '',
+          th: '',
+          ph: '',
+          eh: ''
+        },
+        history: [],
+        // Carrega dados do localStorage ao iniciar
+        init() {
+          this.loadLocally();
+          this.darkMode = localStorage.getItem('darkMode') === 'true';
+          if (this.darkMode) document.documentElement.classList.add('dark');
+        },
+        updateFrom(changedUnit) {
+          let value;
+          switch (changedUnit) {
+            case 'kh':
+              value = parseFloat(this.values.kh);
+              this.values.mh = isNaN(value) ? '' : (value / 1e3).toFixed(9);
+              this.values.gh = isNaN(value) ? '' : (value / 1e6).toFixed(9);
+              this.values.th = isNaN(value) ? '' : (value / 1e9).toFixed(9);
+              this.values.ph = isNaN(value) ? '' : (value / 1e12).toFixed(9);
+              this.values.eh = isNaN(value) ? '' : (value / 1e15).toFixed(9);
+              break;
+            case 'mh':
+              value = parseFloat(this.values.mh);
+              this.values.kh = isNaN(value) ? '' : (value * 1e3).toFixed(0);
+              this.values.gh = isNaN(value) ? '' : (value / 1e3).toFixed(9);
+              this.values.th = isNaN(value) ? '' : (value / 1e6).toFixed(9);
+              this.values.ph = isNaN(value) ? '' : (value / 1e9).toFixed(9);
+              this.values.eh = isNaN(value) ? '' : (value / 1e12).toFixed(9);
+              break;
+            case 'gh':
+              value = parseFloat(this.values.gh);
+              this.values.kh = isNaN(value) ? '' : (value * 1e6).toFixed(0);
+              this.values.mh = isNaN(value) ? '' : (value * 1e3).toFixed(0);
+              this.values.th = isNaN(value) ? '' : (value / 1e3).toFixed(9);
+              this.values.ph = isNaN(value) ? '' : (value / 1e6).toFixed(9);
+              this.values.eh = isNaN(value) ? '' : (value / 1e9).toFixed(9);
+              break;
+            case 'th':
+              value = parseFloat(this.values.th);
+              this.values.kh = isNaN(value) ? '' : (value * 1e9).toFixed(0);
+              this.values.mh = isNaN(value) ? '' : (value * 1e6).toFixed(0);
+              this.values.gh = isNaN(value) ? '' : (value * 1e3).toFixed(0);
+              this.values.ph = isNaN(value) ? '' : (value / 1e3).toFixed(9);
+              this.values.eh = isNaN(value) ? '' : (value / 1e6).toFixed(9);
+              break;
+            case 'ph':
+              value = parseFloat(this.values.ph);
+              this.values.kh = isNaN(value) ? '' : (value * 1e12).toFixed(0);
+              this.values.mh = isNaN(value) ? '' : (value * 1e9).toFixed(0);
+              this.values.gh = isNaN(value) ? '' : (value * 1e6).toFixed(0);
+              this.values.th = isNaN(value) ? '' : (value * 1e3).toFixed(0);
+              this.values.eh = isNaN(value) ? '' : (value / 1e3).toFixed(9);
+              break;
+            case 'eh':
+              value = parseFloat(this.values.eh);
+              this.values.kh = isNaN(value) ? '' : (value * 1e15).toFixed(0);
+              this.values.mh = isNaN(value) ? '' : (value * 1e12).toFixed(0);
+              this.values.gh = isNaN(value) ? '' : (value * 1e9).toFixed(0);
+              this.values.th = isNaN(value) ? '' : (value * 1e6).toFixed(0);
+              this.values.ph = isNaN(value) ? '' : (value * 1e3).toFixed(0);
+              break;
+          }
+          // Salva sempre que há nova entrada
+          this.saveLocally();
+        },
+        clearFields() {
+          for (let key in this.values) {
+            this.values[key] = '';
+          }
+          this.saveLocally();
+        },
+        saveToHistory() {
+          const now = new Date().toLocaleString();
+          const entryText = Object.entries(this.values)
+            .filter(([_, val]) => val !== '')
+            .map(([key, val]) => `${key.toUpperCase()}: ${val}`)
+            .join(', ');
+          if (!entryText) return;
+          this.history.unshift({
+            formattedTime: now,
+            text: entryText
+          });
+          // Limitar a 10 entradas no histórico
+          if (this.history.length > 10) this.history.pop();
+          this.saveLocally();
+        },
+        resetHistory() {
+          this.history = [];
+          this.saveLocally();
+        },
+        saveLocally() {
+          localStorage.setItem('hashConverterValues', JSON.stringify(this.values));
+          localStorage.setItem('hashConverterHistory', JSON.stringify(this.history));
+        },
+        loadLocally() {
+          const savedValues = localStorage.getItem('hashConverterValues');
+          const savedHistory = localStorage.getItem('hashConverterHistory');
+          if (savedValues) this.values = JSON.parse(savedValues);
+          if (savedHistory) this.history = JSON.parse(savedHistory);
+        }
+      };
+    }
+
+    // Inicializar modo escuro após carregar o AlpineJS
+    document.addEventListener('alpine:init', () => {
+      const savedDark = localStorage.getItem('darkMode') === 'true';
+      if (savedDark) document.documentElement.classList.add('dark');
+    });
+
+    // Alternância de modo escuro
+    function toggleDarkMode() {
+      document.documentElement.classList.toggle('dark');
+      const isDark = document.documentElement.classList.contains('dark');
+      localStorage.setItem('darkMode', isDark);
+    }
+  </script>
+</body>
+</html>
+  
